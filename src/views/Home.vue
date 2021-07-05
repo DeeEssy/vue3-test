@@ -1,18 +1,60 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <PostForm @onCreatePost="createPost" />
+    <PostList :posts="posts" @removePost="removePost" />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import PostList from "@/components/PostList";
+import PostForm from "@/components/PostForm";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    HelloWorld
-  }
-}
+    PostList,
+    PostForm,
+  },
+  data() {
+    return {
+      posts: [
+        {
+          id: 1,
+          title: "title",
+          desc: "desc",
+        },
+        {
+          id: 2,
+          title: "title2",
+          desc: "desc2",
+        },
+        {
+          id: 3,
+          title: "title3",
+          desc: "desc3",
+        },
+      ],
+    };
+  },
+  methods: {
+    createPost(newPost) {
+      if (newPost.title && newPost.desc) {
+        const newPostInfo = {
+          id: Date.now(),
+          title: newPost.title,
+          desc: newPost.desc,
+        };
+        this.posts.push(newPostInfo);
+        for (const key in newPost) {
+          if (newPost.hasOwnProperty(key)) {
+            newPost[key] = "";
+          }
+        }
+      }
+    },
+    removePost(post) {
+      this.posts = this.posts.filter((el) => el.id !== post.id);
+    },
+  },
+};
 </script>
