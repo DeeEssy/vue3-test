@@ -1,6 +1,14 @@
 <template>
   <div class="home">
-    <PostForm @onCreatePost="createPost" />
+    <Button @onClick="isVisibleCreateModal = !isVisibleCreateModal">
+      Create a post
+    </Button>
+    <Dialog
+      @onClose="isVisibleCreateModal = !isVisibleCreateModal"
+      v-model="isVisibleCreateModal"
+    >
+      <PostForm @onCreatePost="createPost" />
+    </Dialog>
     <PostList :posts="posts" @removePost="removePost" />
   </div>
 </template>
@@ -15,28 +23,26 @@ export default {
     PostList,
     PostForm,
   },
+  mounted() {
+    this.getPosts(5);
+  },
   data() {
     return {
-      posts: [
-        {
-          id: 1,
-          title: "title",
-          desc: "desc",
-        },
-        {
-          id: 2,
-          title: "title2",
-          desc: "desc2",
-        },
-        {
-          id: 3,
-          title: "title3",
-          desc: "desc3",
-        },
-      ],
+      isVisibleCreateModal: false,
+      posts: [],
     };
   },
   methods: {
+    getPosts(limit = 10) {
+      this.axios({
+        method: "GET",
+        url: `https://jsonplaceholder.typicode.com/posts?_limit=${limit}`,
+      })
+        .then((res) => {
+          this.posts = res.data;
+        })
+        .catch((err) => console.log(err));
+    },
     createPost(newPost) {
       if (newPost.title && newPost.desc) {
         const newPostInfo = {
@@ -45,6 +51,7 @@ export default {
           desc: newPost.desc,
         };
         this.posts.push(newPostInfo);
+        this.isVisibleCreateModal = false;
         for (const key in newPost) {
           if (newPost.hasOwnProperty(key)) {
             newPost[key] = "";
