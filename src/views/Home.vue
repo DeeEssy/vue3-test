@@ -7,12 +7,10 @@
       </Button>
       <Select v-model="sort" :data="sortOptions" />
     </div>
-    <PostList :posts="sortedAndSearchedPosts" @removePost="removePost" />
-
-    <Pagination
-      @changeCurrentPage="changeCurrentPage"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
+    <PostList
+      :posts="sortedAndSearchedPosts"
+      @removePost="removePost"
+      @loadMorePosts="loadMorePosts"
     />
 
     <Dialog
@@ -71,8 +69,8 @@ export default {
     },
   },
   methods: {
-    getPosts() {
-      this.axios({
+    async getPosts() {
+      await this.axios({
         method: "GET",
         url: `https://jsonplaceholder.typicode.com/posts`,
         params: {
@@ -85,6 +83,23 @@ export default {
             res.headers["x-total-count"] / this.postsLimit
           );
           this.posts = res.data;
+        })
+        .catch((err) => console.log(err));
+    },
+    async loadMorePosts() {
+      await this.axios({
+        method: "GET",
+        url: `https://jsonplaceholder.typicode.com/posts`,
+        params: {
+          _page: this.currentPage,
+          _limit: this.postsLimit,
+        },
+      })
+        .then((res) => {
+          this.totalPages = Math.ceil(
+            res.headers["x-total-count"] / this.postsLimit
+          );
+          this.posts = [...this.posts, ...res.data];
         })
         .catch((err) => console.log(err));
     },
@@ -103,10 +118,6 @@ export default {
           }
         }
       }
-    },
-    changeCurrentPage(item) {
-      this.currentPage = item;
-      this.getPosts();
     },
     removePost(post) {
       this.posts = this.posts.filter((el) => el.id !== post.id);
