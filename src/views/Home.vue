@@ -1,15 +1,26 @@
 <template>
   <div class="home">
-    <Button @onClick="isVisibleCreateModal = !isVisibleCreateModal">
-      Create a post
-    </Button>
+    <Input v-model="searchValue" placeholder="Search" />
+    <div class="home__btns">
+      <Button @onClick="isVisibleCreateModal = !isVisibleCreateModal">
+        Create a post
+      </Button>
+      <Select v-model="sort" :data="sortOptions" />
+    </div>
+    <PostList :posts="sortedAndSearchedPosts" @removePost="removePost" />
+
+    <Pagination
+      @changeCurrentPage="changeCurrentPage"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+    />
+
     <Dialog
       @onClose="isVisibleCreateModal = !isVisibleCreateModal"
       v-model="isVisibleCreateModal"
     >
       <PostForm @onCreatePost="createPost" />
     </Dialog>
-    <PostList :posts="posts" @removePost="removePost" />
   </div>
 </template>
 
@@ -24,21 +35,55 @@ export default {
     PostForm,
   },
   mounted() {
-    this.getPosts(5);
+    this.getPosts();
   },
   data() {
     return {
+      sort: "",
+      searchValue: "",
+      currentPage: 1,
+      totalPages: 0,
+      postsLimit: 6,
       isVisibleCreateModal: false,
       posts: [],
+      sortOptions: [
+        {
+          value: "title",
+          name: "Title",
+        },
+        {
+          value: "body",
+          name: "Desc",
+        },
+      ],
     };
   },
+  computed: {
+    filteredPosts() {
+      return this.posts.sort((a, b) => {
+        return a[this.sort]?.localeCompare(b[this.sort]);
+      });
+    },
+    sortedAndSearchedPosts() {
+      return this.filteredPosts.filter((el) =>
+        el.title.toLowerCase().includes(this.searchValue.toLowerCase())
+      );
+    },
+  },
   methods: {
-    getPosts(limit = 10) {
+    getPosts() {
       this.axios({
         method: "GET",
-        url: `https://jsonplaceholder.typicode.com/posts?_limit=${limit}`,
+        url: `https://jsonplaceholder.typicode.com/posts`,
+        params: {
+          _page: this.currentPage,
+          _limit: this.postsLimit,
+        },
       })
         .then((res) => {
+          this.totalPages = Math.ceil(
+            res.headers["x-total-count"] / this.postsLimit
+          );
           this.posts = res.data;
         })
         .catch((err) => console.log(err));
@@ -59,9 +104,30 @@ export default {
         }
       }
     },
+    changeCurrentPage(item) {
+      this.currentPage = item;
+      this.getPosts();
+    },
     removePost(post) {
       this.posts = this.posts.filter((el) => el.id !== post.id);
     },
   },
+  // watch: {
+  //   sort() {
+  //     this.posts.sort((a, b) => {
+  //       return a[this.sort]?.localeCompare(b[this.sort]);
+  //     });
+  //   },
+  // },
 };
 </script>
+
+<style lang="scss" scoped>
+.home {
+  &__btns {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+  }
+}
+</style>
