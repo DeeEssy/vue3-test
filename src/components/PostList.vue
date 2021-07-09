@@ -10,7 +10,6 @@
         />
       </transition-group>
     </div>
-    <Button @onClick="$emit('loadMorePosts')">Load More</Button>
   </template>
   <span v-else>You don't have any posts</span>
 </template>
@@ -28,7 +27,7 @@ export default {
   components: {
     Post,
   },
-  emits: ["removePost", "loadMorePosts"],
+  emits: ["removePost"],
 };
 </script>
 

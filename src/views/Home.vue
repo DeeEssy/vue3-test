@@ -1,17 +1,14 @@
 <template>
   <div class="home">
-    <Input v-model="searchValue" placeholder="Search" />
+    <Input v-focus v-model="searchValue" placeholder="Search" />
     <div class="home__btns">
       <Button @onClick="isVisibleCreateModal = !isVisibleCreateModal">
         Create a post
       </Button>
       <Select v-model="sort" :data="sortOptions" />
     </div>
-    <PostList
-      :posts="sortedAndSearchedPosts"
-      @removePost="removePost"
-      @loadMorePosts="loadMorePosts"
-    />
+    <PostList :posts="sortedAndSearchedPosts" @removePost="removePost" />
+    <div v-intersection="loadMorePosts" class="observer"></div>
 
     <Dialog
       @onClose="isVisibleCreateModal = !isVisibleCreateModal"
@@ -108,9 +105,9 @@ export default {
         const newPostInfo = {
           id: Date.now(),
           title: newPost.title,
-          desc: newPost.desc,
+          body: newPost.desc,
         };
-        this.posts.push(newPostInfo);
+        this.posts = [newPostInfo, ...this.posts];
         this.isVisibleCreateModal = false;
         for (const key in newPost) {
           if (newPost.hasOwnProperty(key)) {

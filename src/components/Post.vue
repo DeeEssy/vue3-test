@@ -3,6 +3,7 @@
     <h3 class="post__title">{{ post.title }}</h3>
     <p class="post__desc">{{ post.body }}</p>
     <div class="post__btns">
+      <Button @onClick="$router.push(`/posts/${post.id}`)">Open</Button>
       <Button @onClick="$emit('removePost', post)">Delete</Button>
     </div>
   </div>

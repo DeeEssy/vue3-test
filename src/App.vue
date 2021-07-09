@@ -1,7 +1,8 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/about">About</router-link> |
+    <router-link to="/composition">Composition</router-link>
   </div>
   <router-view />
 </template>
@@ -14,6 +15,11 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+body {
+  overflow-x: hidden;
+}
+
 #app {
   padding: 20px;
   font-family: Avenir, Helvetica, Arial, sans-serif;

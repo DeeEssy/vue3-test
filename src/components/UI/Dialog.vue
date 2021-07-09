@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="dialog"
-    v-if="modelValue"
-    @click="$emit('update:modelValue', false)"
-  >
+  <div class="dialog" v-if="modelValue" @click="closeModal">
     <div class="dialog__content" @click.stop>
       <slot />
     </div>
@@ -11,13 +7,11 @@
 </template>
 
 <script>
+import toggleDialogMixin from "@/mixins/toggleDialogMixin";
+
 export default {
   name: "Dialog",
-  props: {
-    modelValue: {
-      type: Boolean,
-    },
-  },
+  mixins: [toggleDialogMixin],
 };
 </script>
 
